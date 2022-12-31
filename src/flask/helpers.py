@@ -21,7 +21,6 @@ from .signals import message_flashed
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from werkzeug.wrappers import Response as BaseResponse
-    from .wrappers import Response
     import typing_extensions as te
 
 
