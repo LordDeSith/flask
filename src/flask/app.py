@@ -1678,7 +1678,7 @@ class Flask(Scaffold):
         ):
             raise request.routing_exception  # type: ignore
 
-        from .debughelpers import FormDataRoutingRedirect
+        from .exceptions.form_data_exceptions import FormDataRoutingRedirect
 
         raise FormDataRoutingRedirect(request)
 
