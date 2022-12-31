@@ -5,6 +5,7 @@ import werkzeug.serving
 from jinja2 import TemplateNotFound
 
 import flask
+from flask.app_testing import AppTestingUtil
 
 
 def test_context_processing(app, client):
@@ -333,7 +334,7 @@ def test_custom_template_loader(client):
     def index():
         return flask.render_template("index.html")
 
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
     rv = c.get("/")
     assert rv.data == b"Hello Custom World!"
 
@@ -425,7 +426,7 @@ def test_template_loader_debugging(test_apps, monkeypatch):
             ) in text
             assert "See https://flask.palletsprojects.com/blueprints/#templates" in text
 
-    with app.test_client() as c:
+    with AppTestingUtil(app).test_client() as c:
         monkeypatch.setitem(app.config, "EXPLAIN_TEMPLATE_LOADING", True)
         monkeypatch.setattr(
             logging.getLogger("blueprintapp"), "handlers", [_TestHandler()]

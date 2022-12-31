@@ -1,4 +1,5 @@
 import flask
+from flask.app_testing import AppTestingUtil
 
 
 def test_aborting(app):
@@ -17,7 +18,7 @@ def test_aborting(app):
     def test():
         raise Foo()
 
-    with app.test_client() as c:
+    with AppTestingUtil(app).test_client() as c:
         rv = c.get("/")
         location_parts = rv.headers["Location"].rpartition("/")
 

@@ -7,6 +7,7 @@ from flask import Flask
 from flask import request
 from flask.views import MethodView
 from flask.views import View
+from flask.app_testing import AppTestingUtil
 
 pytest.importorskip("asgiref")
 
@@ -80,7 +81,7 @@ def _async_app():
 
 @pytest.mark.parametrize("path", ["/", "/home", "/bp/", "/view", "/methodview"])
 def test_async_route(path, async_app):
-    test_client = async_app.test_client()
+    test_client = AppTestingUtil(async_app).test_client()
     response = test_client.get(path)
     assert b"GET" in response.get_data()
     response = test_client.post(path)
@@ -89,7 +90,7 @@ def test_async_route(path, async_app):
 
 @pytest.mark.parametrize("path", ["/error", "/bp/error"])
 def test_async_error_handler(path, async_app):
-    test_client = async_app.test_client()
+    test_client = AppTestingUtil(async_app).test_client()
     response = test_client.get(path)
     assert response.status_code == 412
 
@@ -144,7 +145,7 @@ def test_async_before_after_request():
 
     app.register_blueprint(blueprint, url_prefix="/bp")
 
-    test_client = app.test_client()
+    test_client = AppTestingUtil(app).test_client()
     test_client.get("/")
     assert app_first_called
     assert app_before_called

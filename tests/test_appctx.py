@@ -3,7 +3,7 @@ import pytest
 import flask
 from flask.globals import app_ctx
 from flask.globals import request_ctx
-
+from flask.app_testing import AppTestingUtil
 
 def test_basic_url_generation(app):
     app.config["SERVER_NAME"] = "localhost"
@@ -30,7 +30,7 @@ def test_url_generation_without_context_fails():
 
 
 def test_request_context_means_app_context(app):
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert flask.current_app._get_current_object() is app
     assert not flask.current_app
 
@@ -203,7 +203,7 @@ def test_clean_pop(app):
         called.append("TEARDOWN")
 
     try:
-        with app.test_request_context():
+        with AppTestingUtil(app).test_request_context():
             called.append(flask.current_app.name)
     except ZeroDivisionError:
         pass

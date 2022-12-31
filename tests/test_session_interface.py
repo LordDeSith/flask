@@ -2,6 +2,8 @@ import flask
 from flask.globals import request_ctx
 from flask.sessions import SessionInterface
 
+from flask.app_testing import AppTestingUtil
+
 
 def test_open_session_with_endpoint():
     """If request.endpoint (or other URL matching behavior) is needed
@@ -24,5 +26,5 @@ def test_open_session_with_endpoint():
     def index():
         return "Hello, World!"
 
-    response = app.test_client().get("/")
+    response = AppTestingUtil(app).test_client().get("/")
     assert response.status_code == 200

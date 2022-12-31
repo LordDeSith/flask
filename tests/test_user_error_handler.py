@@ -5,6 +5,7 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import NotFound
 
 import flask
+from flask.app_testing import AppTestingUtil
 
 
 def test_error_handler_no_match(app, client):
@@ -90,7 +91,7 @@ def test_error_handler_subclass(app):
     def registered_test():
         raise ChildExceptionRegistered()
 
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
 
     assert c.get("/parent").data == b"parent"
     assert c.get("/child-unregistered").data == b"parent"
@@ -126,7 +127,7 @@ def test_error_handler_http_subclass(app):
     def unregistered_test():
         raise ForbiddenSubclassUnregistered()
 
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
 
     assert c.get("/forbidden").data == b"forbidden"
     assert c.get("/forbidden-unregistered").data == b"forbidden"
@@ -154,7 +155,7 @@ def test_error_handler_blueprint(app):
 
     app.register_blueprint(bp, url_prefix="/bp")
 
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
 
     assert c.get("/error").data == b"app-error"
     assert c.get("/bp/error").data == b"bp-error"
@@ -205,7 +206,7 @@ def test_default_error_handler():
 
     app.register_blueprint(bp, url_prefix="/bp")
 
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
     assert c.get("/bp/undefined").data == b"bp-default"
     assert c.get("/bp/forbidden").data == b"bp-forbidden"
     assert c.get("/undefined").data == b"default"

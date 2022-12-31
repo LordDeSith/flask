@@ -7,7 +7,7 @@ import pytest
 from flask.logging import default_handler
 from flask.logging import has_level_handler
 from flask.logging import wsgi_errors_stream
-
+from flask.app_testing import AppTestingUtil
 
 @pytest.fixture(autouse=True)
 def reset_logging(pytestconfig):
@@ -63,7 +63,7 @@ def test_wsgi_errors_stream(app, client):
 
     assert wsgi_errors_stream._get_current_object() is sys.stderr
 
-    with app.test_request_context(errors_stream=stream):
+    with AppTestingUtil(app).test_request_context(errors_stream=stream):
         assert wsgi_errors_stream._get_current_object() is stream
 
 

@@ -7,6 +7,8 @@ from flask.globals import request_ctx
 from flask.sessions import SecureCookieSessionInterface
 from flask.sessions import SessionInterface
 
+from flask.app_testing import AppTestingUtil
+
 try:
     from greenlet import greenlet
 except ImportError:
@@ -20,7 +22,7 @@ def test_teardown_on_pop(app):
     def end_of_request(exception):
         buffer.append(exception)
 
-    ctx = app.test_request_context()
+    ctx = AppTestingUtil(app).test_request_context()
     ctx.push()
     assert buffer == []
     ctx.pop()
@@ -39,7 +41,7 @@ def test_teardown_with_previous_exception(app):
     except Exception:
         pass
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert buffer == []
     assert buffer == [None]
 
@@ -51,7 +53,7 @@ def test_teardown_with_handled_exception(app):
     def end_of_request(exception):
         buffer.append(exception)
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert buffer == []
         try:
             raise Exception("dummy")
@@ -71,13 +73,13 @@ def test_proper_test_request_context(app):
     def sub():
         return None
 
-    with app.test_request_context("/"):
+    with AppTestingUtil(app).test_request_context("/"):
         assert (
             flask.url_for("index", _external=True)
             == "http://localhost.localdomain:5000/"
         )
 
-    with app.test_request_context("/"):
+    with AppTestingUtil(app).test_request_context("/"):
         assert (
             flask.url_for("sub", _external=True)
             == "http://foo.localhost.localdomain:5000/"
@@ -88,17 +90,17 @@ def test_proper_test_request_context(app):
         warnings.filterwarnings(
             "ignore", "Current server name", UserWarning, "flask.app"
         )
-        with app.test_request_context(
+        with AppTestingUtil(app).test_request_context(
             "/", environ_overrides={"HTTP_HOST": "localhost"}
         ):
             pass
 
     app.config.update(SERVER_NAME="localhost")
-    with app.test_request_context("/", environ_overrides={"SERVER_NAME": "localhost"}):
+    with AppTestingUtil(app).test_request_context("/", environ_overrides={"SERVER_NAME": "localhost"}):
         pass
 
     app.config.update(SERVER_NAME="localhost:80")
-    with app.test_request_context(
+    with AppTestingUtil(app).test_request_context(
         "/", environ_overrides={"SERVER_NAME": "localhost:80"}
     ):
         pass
@@ -113,9 +115,9 @@ def test_context_binding(app):
     def meh():
         return flask.request.url
 
-    with app.test_request_context("/?name=World"):
+    with AppTestingUtil(app).test_request_context("/?name=World"):
         assert index() == "Hello World!"
-    with app.test_request_context("/meh"):
+    with AppTestingUtil(app).test_request_context("/meh"):
         assert meh() == "http://localhost/meh"
     assert not flask.request
 
@@ -123,7 +125,7 @@ def test_context_binding(app):
 def test_context_test(app):
     assert not flask.request
     assert not flask.has_request_context()
-    ctx = app.test_request_context()
+    ctx = AppTestingUtil(app).test_request_context()
     ctx.push()
     try:
         assert flask.request
@@ -137,7 +139,7 @@ def test_manual_context_binding(app):
     def index():
         return f"Hello {flask.request.args['name']}!"
 
-    ctx = app.test_request_context("/?name=World")
+    ctx = AppTestingUtil(app).test_request_context("/?name=World")
     ctx.push()
     assert index() == "Hello World!"
     ctx.pop()
@@ -220,7 +222,7 @@ def test_session_error_pops_context():
         # shouldn't get here
         AssertionError()
 
-    response = app.test_client().get("/")
+    response = AppTestingUtil(app).test_client().get("/")
     assert response.status_code == 500
     assert not flask.request
     assert not flask.current_app
@@ -263,7 +265,7 @@ def test_session_dynamic_cookie_name():
         v = flask.session.get("value", "None")
         return v
 
-    test_client = app.test_client()
+    test_client = AppTestingUtil(app).test_client()
 
     # first set the cookie in both /set urls but each with a different value
     assert test_client.post("/set", data={"value": "42"}).data == b"value set"
@@ -322,5 +324,5 @@ def test_normal_environ_completes():
     def index():
         return "Hello World!"
 
-    response = app.test_client().get("/", headers={"host": "xn--on-0ia.com"})
+    response = AppTestingUtil(app).test_client().get("/", headers={"host": "xn--on-0ia.com"})
     assert response.status_code == 200

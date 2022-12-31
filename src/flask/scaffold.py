@@ -589,7 +589,7 @@ class Scaffold:
 
         .. code-block:: python
 
-            with app.test_request_context():
+            with AppTestingUtil(app).test_request_context():
                 ...
 
         When the ``with`` block exits (or ``ctx.pop()`` is called), the

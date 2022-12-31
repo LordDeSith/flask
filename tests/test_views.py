@@ -3,9 +3,11 @@ from werkzeug.http import parse_set_header
 
 import flask.views
 
+from flask.app_testing import AppTestingUtil
+
 
 def common_test(app):
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
 
     assert c.get("/").data == b"GET"
     assert c.post("/").data == b"POST"
@@ -108,7 +110,7 @@ def test_view_provide_automatic_options_attr():
             return "Hello World!"
 
     app.add_url_rule("/", view_func=Index1.as_view("index"))
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
     rv = c.open("/", method="OPTIONS")
     assert rv.status_code == 405
 
@@ -122,7 +124,7 @@ def test_view_provide_automatic_options_attr():
             return "Hello World!"
 
     app.add_url_rule("/", view_func=Index2.as_view("index"))
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
     rv = c.open("/", method="OPTIONS")
     assert sorted(rv.allow) == ["OPTIONS"]
 
@@ -133,7 +135,7 @@ def test_view_provide_automatic_options_attr():
             return "Hello World!"
 
     app.add_url_rule("/", view_func=Index3.as_view("index"))
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
     rv = c.open("/", method="OPTIONS")
     assert "OPTIONS" in rv.allow
 

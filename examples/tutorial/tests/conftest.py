@@ -8,6 +8,8 @@ from flaskr.db import get_db
 from flaskr.db import init_db
 
 # read in SQL for populating test data
+from flask.app_testing import AppTestingUtil
+
 with open(os.path.join(os.path.dirname(__file__), "data.sql"), "rb") as f:
     _data_sql = f.read().decode("utf8")
 
@@ -35,13 +37,13 @@ def app():
 @pytest.fixture
 def client(app):
     """A test client for the app."""
-    return app.test_client()
+    return AppTestingUtil(app).test_client()
 
 
 @pytest.fixture
 def runner(app):
     """A test runner for the app's Click commands."""
-    return app.test_cli_runner()
+    return AppTestingUtil(app).test_cli_runner()
 
 
 class AuthActions:

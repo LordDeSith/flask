@@ -3,7 +3,7 @@ from werkzeug.routing import BaseConverter
 from flask import request
 from flask import session
 from flask import url_for
-
+from flask.app_testing import AppTestingUtil
 
 def test_custom_converters(app, client):
     class ListConverter(BaseConverter):
@@ -22,7 +22,7 @@ def test_custom_converters(app, client):
 
     assert client.get("/1,2,3").data == b"1|2|3"
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert url_for("index", args=[4, 5, 6]) == "/4,5,6"
 
 

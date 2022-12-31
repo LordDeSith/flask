@@ -10,6 +10,8 @@ from flask.json import jsonify
 from flask.testing import EnvironBuilder
 from flask.testing import FlaskCliRunner
 
+from flask.app_testing import AppTestingUtil
+
 try:
     import blinker
 except ImportError:
@@ -24,7 +26,7 @@ def test_environ_defaults_from_config(app, client):
     def index():
         return flask.request.url
 
-    ctx = app.test_request_context()
+    ctx = AppTestingUtil(app).test_request_context()
     assert ctx.request.url == "http://example.com:1234/foo/"
 
     rv = client.get("/")
@@ -36,7 +38,7 @@ def test_environ_defaults(app, client, app_ctx, req_ctx):
     def index():
         return flask.request.url
 
-    ctx = app.test_request_context()
+    ctx = AppTestingUtil(app).test_request_context()
     assert ctx.request.url == "http://localhost/"
     with client:
         rv = client.get("/")
@@ -95,7 +97,7 @@ def test_specify_url_scheme(app, client):
     def index():
         return flask.request.url
 
-    ctx = app.test_request_context(url_scheme="https")
+    ctx = AppTestingUtil(app).test_request_context(url_scheme="https")
     assert ctx.request.url == "https://localhost/"
 
     rv = client.get("/", url_scheme="https")
@@ -121,7 +123,7 @@ def test_blueprint_with_subdomain():
     app = flask.Flask(__name__, subdomain_matching=True)
     app.config["SERVER_NAME"] = "example.com:1234"
     app.config["APPLICATION_ROOT"] = "/foo"
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
 
     bp = flask.Blueprint("company", __name__, subdomain="xxx")
 
@@ -131,7 +133,7 @@ def test_blueprint_with_subdomain():
 
     app.register_blueprint(bp)
 
-    ctx = app.test_request_context("/", subdomain="xxx")
+    ctx = AppTestingUtil(app).test_request_context("/", subdomain="xxx")
     assert ctx.request.url == "http://xxx.example.com:1234/foo/"
 
     with ctx:
@@ -189,7 +191,7 @@ def test_session_transactions(app, client):
 def test_session_transactions_no_null_sessions():
     app = flask.Flask(__name__)
 
-    with app.test_client() as c:
+    with AppTestingUtil(app).test_client() as c:
         with pytest.raises(RuntimeError) as e:
             with c.session_transaction():
                 pass
@@ -205,7 +207,7 @@ def test_session_transactions_keep_context(app, client, req_ctx):
 
 
 def test_session_transaction_needs_cookies(app):
-    c = app.test_client(use_cookies=False)
+    c = AppTestingUtil(app).test_client()(use_cookies=False)
     with pytest.raises(RuntimeError) as e:
         with c.session_transaction():
             pass
@@ -309,13 +311,13 @@ def test_client_json_no_app_context(app, client):
 def test_subdomain():
     app = flask.Flask(__name__, subdomain_matching=True)
     app.config["SERVER_NAME"] = "example.com"
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
 
     @app.route("/", subdomain="<company_id>")
     def view(company_id):
         return company_id
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         url = flask.url_for("view", company_id="xxx")
 
     with client:
@@ -332,7 +334,7 @@ def test_nosubdomain(app, client):
     def view(company_id):
         return company_id
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         url = flask.url_for("view", company_id="xxx")
 
     with client:
@@ -343,14 +345,15 @@ def test_nosubdomain(app, client):
 
 
 def test_cli_runner_class(app):
-    runner = app.test_cli_runner()
+    app_testing_util = AppTestingUtil(app)
+    runner = app_testing_util.test_cli_runner()
     assert isinstance(runner, FlaskCliRunner)
 
     class SubRunner(FlaskCliRunner):
         pass
 
-    app.test_cli_runner_class = SubRunner
-    runner = app.test_cli_runner()
+    app_testing_util.test_cli_runner_class = SubRunner
+    runner = app_testing_util.test_cli_runner()
     assert isinstance(runner, SubRunner)
 
 
@@ -359,7 +362,7 @@ def test_cli_invoke(app):
     def hello_command():
         click.echo("Hello, World!")
 
-    runner = app.test_cli_runner()
+    runner = AppTestingUtil(app).test_cli_runner()
     # invoke with command name
     result = runner.invoke(args=["hello"])
     assert "Hello" in result.output
@@ -381,7 +384,7 @@ def test_cli_custom_obj(app):
         click.echo("Hello, World!")
 
     script_info = ScriptInfo(create_app=create_app)
-    runner = app.test_cli_runner()
+    runner = AppTestingUtil(app).test_cli_runner()
     runner.invoke(hello_command, obj=script_info)
     assert NS.called
 

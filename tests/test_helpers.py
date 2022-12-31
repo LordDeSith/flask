@@ -6,7 +6,7 @@ import werkzeug.exceptions
 
 import flask
 from flask.helpers import get_debug_flag
-
+from flask.app_testing import AppTestingUtil
 
 class FakePath:
     """Fake object to represent a ``PathLike object``.
@@ -78,7 +78,7 @@ class TestSendfile:
 
         app = StaticFileApp(__name__)
 
-        with app.test_request_context():
+        with AppTestingUtil(app).test_request_context():
             # Test with static file handler.
             rv = app.send_static_file("index.html")
             assert rv.cache_control.max_age == 10
@@ -323,7 +323,7 @@ class TestHelpers:
 
     def test_make_response(self):
         app = flask.Flask(__name__)
-        with app.test_request_context():
+        with AppTestingUtil(app).test_request_context():
             rv = flask.helpers.make_response()
             assert rv.status_code == 200
             assert rv.mimetype == "text/html"

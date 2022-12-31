@@ -9,6 +9,8 @@ from _pytest import monkeypatch
 from flask import Flask
 from flask.globals import request_ctx
 
+from flask.app_testing import AppTestingUtil
+
 
 @pytest.fixture(scope="session", autouse=True)
 def _standard_os_environ():
@@ -62,13 +64,13 @@ def app_ctx(app):
 
 @pytest.fixture
 def req_ctx(app):
-    with app.test_request_context() as ctx:
+    with AppTestingUtil(app).test_request_context() as ctx:
         yield ctx
 
 
 @pytest.fixture
 def client(app):
-    return app.test_client()
+    return AppTestingUtil(app).test_client()
 
 
 @pytest.fixture

@@ -27,6 +27,8 @@ from flask.cli import run_command
 from flask.cli import ScriptInfo
 from flask.cli import with_appcontext
 
+from flask.app_testing import AppTestingUtil
+
 cwd = Path.cwd()
 test_path = (Path(__file__) / ".." / "test_apps").resolve()
 
@@ -654,7 +656,7 @@ def test_cli_blueprints(app):
     app.register_blueprint(merged)
     app.register_blueprint(late, cli_group="late_registration")
 
-    app_runner = app.test_cli_runner()
+    app_runner = AppTestingUtil(app).test_cli_runner()
 
     result = app_runner.invoke(args=["customized", "custom"])
     assert "custom_result" in result.output
@@ -674,5 +676,5 @@ def test_cli_empty(app):
     bp = Blueprint("blue", __name__, cli_group="blue")
     app.register_blueprint(bp)
 
-    result = app.test_cli_runner().invoke(args=["blue", "--help"])
+    result = AppTestingUtil(app).test_cli_runner().invoke(args=["blue", "--help"])
     assert result.exit_code == 2, f"Unexpected success:\n\n{result.output}"

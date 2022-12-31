@@ -1,5 +1,7 @@
 import pytest
 
+from flask.app_testing import AppTestingUtil
+
 try:
     import blinker
 except ImportError:
@@ -48,7 +50,7 @@ def test_before_render_template():
 
     flask.before_render_template.connect(record, app)
     try:
-        rv = app.test_client().get("/")
+        rv = AppTestingUtil(app).test_client().get("/")
         assert len(recorded) == 1
         template, context = recorded[0]
         assert template.name == "simple_template.html"
@@ -88,7 +90,7 @@ def test_request_signals():
     flask.request_finished.connect(after_request_signal, app)
 
     try:
-        rv = app.test_client().get("/")
+        rv = AppTestingUtil(app).test_client().get("/")
         assert rv.data == b"stuff"
 
         assert calls == [
@@ -116,7 +118,7 @@ def test_request_exception_signal():
 
     flask.got_request_exception.connect(record, app)
     try:
-        assert app.test_client().get("/").status_code == 500
+        assert AppTestingUtil(app).test_client().get("/").status_code == 500
         assert len(recorded) == 1
         assert isinstance(recorded[0], ZeroDivisionError)
     finally:
@@ -160,7 +162,7 @@ def test_flash_signal(app):
 
     flask.message_flashed.connect(record, app)
     try:
-        client = app.test_client()
+        client = AppTestingUtil(app).test_client()
         with client.session_transaction():
             client.get("/")
             assert len(recorded) == 1

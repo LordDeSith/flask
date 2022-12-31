@@ -19,7 +19,7 @@ from werkzeug.routing import BuildError
 from werkzeug.routing import RequestRedirect
 
 import flask
-
+from flask.app_testing import AppTestingUtil
 
 require_cpython_gc = pytest.mark.skipif(
     python_implementation() != "CPython",
@@ -75,7 +75,7 @@ def test_provide_automatic_options_attr():
 
     index.provide_automatic_options = False
     app.route("/")(index)
-    rv = app.test_client().open("/", method="OPTIONS")
+    rv = AppTestingUtil(app).test_client().open("/", method="OPTIONS")
     assert rv.status_code == 405
 
     app = flask.Flask(__name__)
@@ -85,7 +85,7 @@ def test_provide_automatic_options_attr():
 
     index2.provide_automatic_options = True
     app.route("/", methods=["OPTIONS"])(index2)
-    rv = app.test_client().open("/", method="OPTIONS")
+    rv = AppTestingUtil(app).test_client().open("/", method="OPTIONS")
     assert sorted(rv.allow) == ["OPTIONS"]
 
 
@@ -414,7 +414,7 @@ def test_missing_session(app):
         e = pytest.raises(RuntimeError, f, *args, **kwargs)
         assert e.value.args and "session is unavailable" in e.value.args[0]
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert flask.session.get("missing_key") is None
         expect_exception(flask.session.__setitem__, "foo", 42)
         expect_exception(flask.session.pop, "foo")
@@ -511,7 +511,7 @@ def test_session_cookie_setting(app):
         return str(flask.session.get("foo", 0))
 
     def run_test(expect_header):
-        with app.test_client() as c:
+        with AppTestingUtil(app).test_client() as c:
             assert c.get("/bump").data == b"1"
             assert c.get("/bump").data == b"2"
             assert c.get("/bump").data == b"3"
@@ -666,19 +666,19 @@ def test_extended_flashing(app):
 
     # Create new test client on each test to clean flashed messages.
 
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
     client.get("/")
     client.get("/test_with_categories/")
 
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
     client.get("/")
     client.get("/test_filter/")
 
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
     client.get("/")
     client.get("/test_filters/")
 
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
     client.get("/")
     client.get("/test_filters_without_returning_categories/")
 
@@ -1234,7 +1234,7 @@ def test_response_type_errors():
     def from_bad_wsgi():
         return lambda: None
 
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
 
     with pytest.raises(TypeError) as e:
         c.get("/none")
@@ -1347,12 +1347,12 @@ def test_url_generation(app, req_ctx):
 
 def test_build_error_handler(app):
     # Test base case, a URL which results in a BuildError.
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         pytest.raises(BuildError, flask.url_for, "spam")
 
     # Verify the error is re-raised if not the current exception.
     try:
-        with app.test_request_context():
+        with AppTestingUtil(app).test_request_context():
             flask.url_for("spam")
     except BuildError as err:
         error = err
@@ -1367,7 +1367,7 @@ def test_build_error_handler(app):
         return "/test_handler/"
 
     app.url_build_error_handlers.append(handler)
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert flask.url_for("spam") == "/test_handler/"
 
 
@@ -1378,7 +1378,7 @@ def test_build_error_handler_reraise(app):
 
     app.url_build_error_handlers.append(handler_raises_build_error)
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         pytest.raises(BuildError, flask.url_for, "not.existing")
 
 
@@ -1393,7 +1393,7 @@ def test_url_for_passes_special_values_to_build_error_handler(app):
         }
         return "handled"
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         flask.url_for("/")
 
 
@@ -1401,7 +1401,7 @@ def test_static_files(app, client):
     rv = client.get("/static/index.html")
     assert rv.status_code == 200
     assert rv.data.strip() == b"<h1>Hello World!</h1>"
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert flask.url_for("static", filename="index.html") == "/static/index.html"
     rv.close()
 
@@ -1409,35 +1409,35 @@ def test_static_files(app, client):
 def test_static_url_path():
     app = flask.Flask(__name__, static_url_path="/foo")
     app.testing = True
-    rv = app.test_client().get("/foo/index.html")
+    rv = AppTestingUtil(app).test_client().get("/foo/index.html")
     assert rv.status_code == 200
     rv.close()
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert flask.url_for("static", filename="index.html") == "/foo/index.html"
 
 
 def test_static_url_path_with_ending_slash():
     app = flask.Flask(__name__, static_url_path="/foo/")
     app.testing = True
-    rv = app.test_client().get("/foo/index.html")
+    rv = AppTestingUtil(app).test_client().get("/foo/index.html")
     assert rv.status_code == 200
     rv.close()
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert flask.url_for("static", filename="index.html") == "/foo/index.html"
 
 
 def test_static_url_empty_path(app):
     app = flask.Flask(__name__, static_folder="", static_url_path="")
-    rv = app.test_client().open("/static/index.html", method="GET")
+    rv = AppTestingUtil(app).test_client().open("/static/index.html", method="GET")
     assert rv.status_code == 200
     rv.close()
 
 
 def test_static_url_empty_path_default(app):
     app = flask.Flask(__name__, static_folder="")
-    rv = app.test_client().open("/static/index.html", method="GET")
+    rv = AppTestingUtil(app).test_client().open("/static/index.html", method="GET")
     assert rv.status_code == 200
     rv.close()
 
@@ -1446,7 +1446,7 @@ def test_static_folder_with_pathlib_path(app):
     from pathlib import Path
 
     app = flask.Flask(__name__, static_folder=Path("static"))
-    rv = app.test_client().open("/static/index.html", method="GET")
+    rv = AppTestingUtil(app).test_client().open("/static/index.html", method="GET")
     assert rv.status_code == 200
     rv.close()
 
@@ -1458,17 +1458,17 @@ def test_static_folder_with_ending_slash():
     def catch_all(path):
         return path
 
-    rv = app.test_client().get("/catch/all")
+    rv = AppTestingUtil(app).test_client().get("/catch/all")
     assert rv.data == b"catch/all"
 
 
 def test_static_route_with_host_matching():
     app = flask.Flask(__name__, host_matching=True, static_host="example.com")
-    c = app.test_client()
+    c = AppTestingUtil(app).test_client()
     rv = c.get("http://example.com/static/index.html")
     assert rv.status_code == 200
     rv.close()
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         rv = flask.url_for("static", filename="index.html", _external=True)
         assert rv == "http://example.com/static/index.html"
     # Providing static_host without host_matching=True should error.
@@ -1490,7 +1490,7 @@ def test_request_locals():
 
 def test_server_name_subdomain():
     app = flask.Flask(__name__, subdomain_matching=True)
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
 
     @app.route("/")
     def index():
@@ -1636,7 +1636,7 @@ def test_inject_blueprint_url_defaults(app):
     expected = dict(page="login")
     assert values == expected
 
-    with app.test_request_context("/somepage"):
+    with AppTestingUtil(app).test_request_context("/somepage"):
         url = flask.url_for("foo.view")
     expected = "/login"
     assert url == expected
@@ -1739,7 +1739,7 @@ def test_route_decorator_custom_endpoint(app, client):
     def for_bar_foo():
         return flask.request.endpoint
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert flask.url_for("foo") == "/foo/"
         assert flask.url_for("bar") == "/bar/"
         assert flask.url_for("123") == "/bar/123"
@@ -1768,7 +1768,7 @@ def test_g_iteration_protocol(app_ctx):
 def test_subdomain_basic_support():
     app = flask.Flask(__name__, subdomain_matching=True)
     app.config["SERVER_NAME"] = "localhost.localdomain"
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
 
     @app.route("/")
     def normal_index():
@@ -1787,7 +1787,7 @@ def test_subdomain_basic_support():
 
 def test_subdomain_matching():
     app = flask.Flask(__name__, subdomain_matching=True)
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
     app.config["SERVER_NAME"] = "localhost.localdomain"
 
     @app.route("/", subdomain="<user>")
@@ -1801,7 +1801,7 @@ def test_subdomain_matching():
 def test_subdomain_matching_with_ports():
     app = flask.Flask(__name__, subdomain_matching=True)
     app.config["SERVER_NAME"] = "localhost.localdomain:3000"
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
 
     @app.route("/", subdomain="<user>")
     def index(user):
@@ -1815,7 +1815,7 @@ def test_subdomain_matching_with_ports():
 def test_subdomain_matching_other_name(matching):
     app = flask.Flask(__name__, subdomain_matching=matching)
     app.config["SERVER_NAME"] = "localhost.localdomain:3000"
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
 
     @app.route("/")
     def index():

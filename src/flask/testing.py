@@ -13,6 +13,7 @@ from werkzeug.wrappers import Request as BaseRequest
 from .cli import ScriptInfo
 from .globals import _cv_request
 from .sessions import SessionMixin
+from .app_testing import AppTestingUtil
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from werkzeug.test import TestResponse
@@ -145,7 +146,7 @@ class FlaskClient(Client):
         environ_overrides = kwargs.setdefault("environ_overrides", {})
         self.cookie_jar.inject_wsgi(environ_overrides)
         outer_reqctx = _cv_request.get(None)
-        with app.test_request_context(*args, **kwargs) as c:
+        with AppTestingUtil(app).test_request_context(*args, **kwargs) as c:
             session_interface = app.session_interface
             sess = session_interface.open_session(app, c.request)
             if sess is None:

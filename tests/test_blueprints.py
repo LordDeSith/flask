@@ -3,6 +3,7 @@ from jinja2 import TemplateNotFound
 from werkzeug.http import parse_cache_control_header
 
 import flask
+from flask.app_testing import AppTestingUtil
 
 
 def test_blueprint_specific_error_handling(app, client):
@@ -176,7 +177,7 @@ def test_blueprint_url_processors(app, client):
 def test_templates_and_static(test_apps):
     from blueprintapp import app
 
-    client = app.test_client()
+    client = AppTestingUtil(app).test_client()
 
     rv = client.get("/")
     assert rv.data == b"Hello from the Frontend"
@@ -205,13 +206,13 @@ def test_templates_and_static(test_apps):
     finally:
         app.config["SEND_FILE_MAX_AGE_DEFAULT"] = max_age_default
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         assert (
             flask.url_for("admin.static", filename="test.txt")
             == "/admin/static/test.txt"
         )
 
-    with app.test_request_context():
+    with AppTestingUtil(app).test_request_context():
         with pytest.raises(TemplateNotFound) as e:
             flask.render_template("missing.html")
         assert e.value.name == "missing.html"
@@ -231,7 +232,7 @@ def test_default_static_max_age(app):
     # try/finally, in case other tests use this app for Blueprint tests.
     max_age_default = app.config["SEND_FILE_MAX_AGE_DEFAULT"]
     try:
-        with app.test_request_context():
+        with AppTestingUtil(app).test_request_context():
             unexpected_max_age = 3600
             if app.config["SEND_FILE_MAX_AGE_DEFAULT"] == unexpected_max_age:
                 unexpected_max_age = 7200
