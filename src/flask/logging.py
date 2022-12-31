@@ -6,9 +6,6 @@ from werkzeug.local import LocalProxy
 
 from .globals import request
 
-if t.TYPE_CHECKING:  # pragma: no cover
-    from .app import Flask
-
 
 @LocalProxy
 def wsgi_errors_stream() -> t.TextIO:
