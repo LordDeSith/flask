@@ -5,7 +5,7 @@ from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import NotFound
 
 import flask
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 
 def test_error_handler_no_match(app, client):

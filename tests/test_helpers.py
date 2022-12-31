@@ -6,7 +6,7 @@ import werkzeug.exceptions
 
 import flask
 from flask.helpers import get_debug_flag
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 class FakePath:
     """Fake object to represent a ``PathLike object``.

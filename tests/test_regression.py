@@ -1,5 +1,5 @@
 import flask
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 
 def test_aborting(app):

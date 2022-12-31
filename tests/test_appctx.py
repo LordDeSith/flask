@@ -3,7 +3,7 @@ import pytest
 import flask
 from flask.globals import app_ctx
 from flask.globals import request_ctx
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 def test_basic_url_generation(app):
     app.config["SERVER_NAME"] = "localhost"

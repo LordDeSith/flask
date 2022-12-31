@@ -7,7 +7,7 @@ import pytest
 from flask.logging import default_handler
 from flask.logging import has_level_handler
 from flask.logging import wsgi_errors_stream
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 @pytest.fixture(autouse=True)
 def reset_logging(pytestconfig):

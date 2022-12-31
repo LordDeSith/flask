@@ -1,6 +1,6 @@
 import pytest
 
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 try:
     import blinker

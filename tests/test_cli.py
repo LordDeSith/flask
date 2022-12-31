@@ -27,7 +27,7 @@ from flask.cli import run_command
 from flask.cli import ScriptInfo
 from flask.cli import with_appcontext
 
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 cwd = Path.cwd()
 test_path = (Path(__file__) / ".." / "test_apps").resolve()

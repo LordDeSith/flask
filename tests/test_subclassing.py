@@ -1,7 +1,7 @@
 from io import StringIO
 
 import flask
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 
 def test_suppressed_exception_logging():

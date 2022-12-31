@@ -10,7 +10,7 @@ from flask.json import jsonify
 from flask.testing import EnvironBuilder
 from flask.testing import FlaskCliRunner
 
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 try:
     import blinker
@@ -207,7 +207,7 @@ def test_session_transactions_keep_context(app, client, req_ctx):
 
 
 def test_session_transaction_needs_cookies(app):
-    c = AppTestingUtil(app).test_client()(use_cookies=False)
+    c = AppTestingUtil(app).test_client(use_cookies=False)
     with pytest.raises(RuntimeError) as e:
         with c.session_transaction():
             pass

@@ -19,7 +19,7 @@ from werkzeug.routing import BuildError
 from werkzeug.routing import RequestRedirect
 
 import flask
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 require_cpython_gc = pytest.mark.skipif(
     python_implementation() != "CPython",

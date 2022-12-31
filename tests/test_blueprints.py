@@ -3,7 +3,7 @@ from jinja2 import TemplateNotFound
 from werkzeug.http import parse_cache_control_header
 
 import flask
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 
 def test_blueprint_specific_error_handling(app, client):
@@ -217,7 +217,7 @@ def test_templates_and_static(test_apps):
             flask.render_template("missing.html")
         assert e.value.name == "missing.html"
 
-    with flask.Flask(__name__).test_request_context():
+    with AppTestingUtil(flask.Flask(__name__)).test_request_context():
         assert flask.render_template("nested/nested.txt") == "I'm nested"
 
 

@@ -3,7 +3,7 @@ from werkzeug.routing import BaseConverter
 from flask import request
 from flask import session
 from flask import url_for
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 def test_custom_converters(app, client):
     class ListConverter(BaseConverter):

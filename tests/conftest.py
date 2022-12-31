@@ -9,7 +9,7 @@ from _pytest import monkeypatch
 from flask import Flask
 from flask.globals import request_ctx
 
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 
 @pytest.fixture(scope="session", autouse=True)

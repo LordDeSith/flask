@@ -2,7 +2,7 @@ import flask
 from flask.globals import request_ctx
 from flask.sessions import SessionInterface
 
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 
 def test_open_session_with_endpoint():

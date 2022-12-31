@@ -5,7 +5,7 @@ import werkzeug.serving
 from jinja2 import TemplateNotFound
 
 import flask
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 
 def test_context_processing(app, client):

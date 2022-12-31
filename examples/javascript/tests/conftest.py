@@ -1,7 +1,7 @@
 import pytest
 
 from js_example import app
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 @pytest.fixture(name="app")
 def fixture_app():

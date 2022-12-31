@@ -3,7 +3,7 @@ from werkzeug.http import parse_set_header
 
 import flask.views
 
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 
 def common_test(app):

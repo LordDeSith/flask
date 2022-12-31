@@ -7,7 +7,7 @@ from flask import Flask
 from flask import request
 from flask.views import MethodView
 from flask.views import View
-from flask.app_testing import AppTestingUtil
+from flask.testing import AppTestingUtil
 
 pytest.importorskip("asgiref")
 
