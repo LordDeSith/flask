@@ -21,9 +21,6 @@ from .globals import current_app
 from .helpers import get_debug_flag
 from .helpers import get_load_dotenv
 
-if t.TYPE_CHECKING:
-    from .app import Flask
-
 
 class NoAppException(click.UsageError):
     """Raised if an application cannot be found or loaded."""
@@ -33,17 +30,16 @@ def find_best_app(module):
     """Given a module instance this tries to find the best possible
     application in the module or raises an exception.
     """
-    from . import Flask
 
     # Search for the most common names first.
     for attr_name in ("app", "application"):
         app = getattr(module, attr_name, None)
 
-        if isinstance(app, Flask):
+        if type(app).__name__ == "Flask":
             return app
 
     # Otherwise find the only object that is a Flask instance.
-    matches = [v for v in module.__dict__.values() if isinstance(v, Flask)]
+    matches = [v for v in module.__dict__.values() if type(v).__name__ == "Flask"]
 
     if len(matches) == 1:
         return matches[0]
@@ -62,7 +58,7 @@ def find_best_app(module):
             try:
                 app = app_factory()
 
-                if isinstance(app, Flask):
+                if type(app).__name__ == "Flask":
                     return app
             except TypeError as e:
                 if not _called_with_wrong_args(app_factory):
@@ -112,7 +108,6 @@ def find_app_by_string(module, app_name):
     """Check if the given string is a variable name or a function. Call
     a function to get the app instance, or return the variable directly.
     """
-    from . import Flask
 
     # Parse app_name as a single expression to determine if it's a valid
     # attribute name or function call.
@@ -175,7 +170,7 @@ def find_app_by_string(module, app_name):
     else:
         app = attr
 
-    if isinstance(app, Flask):
+    if type(app).__name__ == "Flask":
         return app
 
     raise NoAppException(
@@ -275,7 +270,7 @@ class ScriptInfo:
     def __init__(
         self,
         app_import_path: str | None = None,
-        create_app: t.Callable[..., Flask] | None = None,
+        create_app: t.Callable[..., "Flask"] | None = None,
         set_debug_flag: bool = True,
     ) -> None:
         #: Optionally the import path for the Flask application.
@@ -287,9 +282,9 @@ class ScriptInfo:
         #: this script info.
         self.data: t.Dict[t.Any, t.Any] = {}
         self.set_debug_flag = set_debug_flag
-        self._loaded_app: Flask | None = None
+        self._loaded_app: "Flask" | None = None
 
-    def load_app(self) -> Flask:
+    def load_app(self) -> "Flask":
         """Loads the Flask app (if not yet loaded) and returns it.  Calling
         this multiple times will just result in the already loaded app to
         be returned.
@@ -510,7 +505,7 @@ class FlaskGroup(AppGroup):
     def __init__(
         self,
         add_default_commands: bool = True,
-        create_app: t.Callable[..., Flask] | None = None,
+        create_app: t.Callable[..., "Flask"] | None = None,
         add_version_option: bool = True,
         load_dotenv: bool = True,
         set_debug_flag: bool = True,

@@ -1,5 +1,3 @@
-from .app import Flask
-from .blueprints import Blueprint
 from .globals import request_ctx
 import typing as t
 
@@ -20,7 +18,7 @@ def _dump_loader_info(loader) -> t.Generator:
         yield f"{key}: {value!r}"
 
 
-def explain_template_loading_attempts(app: Flask, template, attempts) -> None:
+def explain_template_loading_attempts(app: "Flask", template, attempts) -> None:
     """This should help developers understand what failed"""
     info = [f"Locating template {template!r}:"]
     total_found = 0
@@ -29,9 +27,9 @@ def explain_template_loading_attempts(app: Flask, template, attempts) -> None:
         blueprint = request_ctx.request.blueprint
 
     for idx, (loader, srcobj, triple) in enumerate(attempts):
-        if isinstance(srcobj, Flask):
+        if type(srcobj).__name__ == "Flask":
             src_info = f"application {srcobj.import_name!r}"
-        elif isinstance(srcobj, Blueprint):
+        elif type(srcobj).__name__ == "Blueprint":
             src_info = f"blueprint {srcobj.name!r} ({srcobj.import_name})"
         else:
             src_info = repr(srcobj)

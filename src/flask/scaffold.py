@@ -21,9 +21,6 @@ from .helpers import locked_cached_property
 from .helpers import send_from_directory
 from .templating import _default_template_ctx_processor
 
-if t.TYPE_CHECKING:  # pragma: no cover
-    from .wrappers import Response
-
 # a singleton sentinel value for parameter defaults
 _sentinel = object()
 

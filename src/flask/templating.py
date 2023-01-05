@@ -13,10 +13,6 @@ from .helpers import stream_with_context
 from .signals import before_render_template
 from .signals import template_rendered
 
-if t.TYPE_CHECKING:  # pragma: no cover
-    from .app import Flask
-    from .scaffold import Scaffold
-
 
 def _default_template_ctx_processor() -> t.Dict[str, t.Any]:
     """Default template context processor.  Injects `request`,

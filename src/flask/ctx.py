@@ -13,7 +13,6 @@ from .signals import appcontext_popped
 from .signals import appcontext_pushed
 
 if t.TYPE_CHECKING:  # pragma: no cover
-    from .app import Flask
     from .sessions import SessionMixin
     from .wrappers import Request
 

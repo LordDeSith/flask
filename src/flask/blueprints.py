@@ -10,8 +10,6 @@ from .scaffold import _sentinel
 from .scaffold import Scaffold
 from .scaffold import setupmethod
 
-if t.TYPE_CHECKING:  # pragma: no cover
-    from .app import Flask
 
 DeferredSetupFunction = t.Callable[["BlueprintSetupState"], t.Callable]
 T_after_request = t.TypeVar("T_after_request", bound=ft.AfterRequestCallable)

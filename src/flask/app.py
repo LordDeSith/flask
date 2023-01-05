@@ -69,10 +69,6 @@ from .templating import Environment
 from .wrappers import Request
 from .wrappers import Response
 
-if t.TYPE_CHECKING:  # pragma: no cover
-    import typing_extensions as te
-    from .blueprints import Blueprint
-
 T_before_first_request = t.TypeVar(
     "T_before_first_request", bound=ft.BeforeFirstRequestCallable
 )

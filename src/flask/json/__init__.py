@@ -8,10 +8,6 @@ from jinja2.utils import htmlsafe_json_dumps as _jinja_htmlsafe_dumps
 from ..globals import current_app
 from .provider import _default
 
-if t.TYPE_CHECKING:  # pragma: no cover
-    from ..app import Flask
-    from ..wrappers import Response
-
 
 class JSONEncoder(_json.JSONEncoder):
     """The default JSON encoder. Handles extra types compared to the
