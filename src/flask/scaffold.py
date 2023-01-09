@@ -18,7 +18,7 @@ from .cli import AppGroup
 from .globals import current_app
 from .helpers import get_root_path
 from .helpers import locked_cached_property
-from .helpers import send_from_directory
+from .send_helpers import send_from_directory
 from .templating import _default_template_ctx_processor
 
 # a singleton sentinel value for parameter defaults

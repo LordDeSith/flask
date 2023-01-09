@@ -324,11 +324,11 @@ class TestHelpers:
     def test_make_response(self):
         app = flask.Flask(__name__)
         with AppTestingUtil(app).test_request_context():
-            rv = flask.helpers.make_response()
+            rv = flask.redirect_helpers.make_response()
             assert rv.status_code == 200
             assert rv.mimetype == "text/html"
 
-            rv = flask.helpers.make_response("Hello")
+            rv = flask.redirect_helpers.make_response("Hello")
             assert rv.status_code == 200
             assert rv.data == b"Hello"
             assert rv.mimetype == "text/html"
