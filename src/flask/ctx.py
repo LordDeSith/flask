@@ -374,7 +374,7 @@ class RequestContext:
             self.session = session_interface.open_session(self.app, self.request)
 
             if self.session is None:
-                self.session = session_interface.make_null_session(self.app)
+                self.session = session_interface.make_null_session()
 
         # Match the request URL after loading the session, so that the
         # session is available in custom URL converters.

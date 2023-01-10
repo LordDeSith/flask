@@ -23,6 +23,7 @@ except ImportError:
             self.__doc__ = doc
 
         def send(self, *args: t.Any, **kwargs: t.Any) -> t.Any:
+            # fake method
             pass
 
         def _fail(self, *args: t.Any, **kwargs: t.Any) -> t.Any:

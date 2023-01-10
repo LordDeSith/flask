@@ -873,7 +873,7 @@ def run_command(
     info,
     host,
     port,
-    reload,
+    do_reload,
     debugger,
     with_threads,
     cert,
@@ -907,8 +907,8 @@ def run_command(
 
     debug = get_debug_flag()
 
-    if reload is None:
-        reload = debug
+    if do_reload is None:
+        do_reload = debug
 
     if debugger is None:
         debugger = debug
@@ -919,7 +919,7 @@ def run_command(
         host,
         port,
         app,
-        use_reloader=reload,
+        use_reloader=do_reload,
         use_debugger=debugger,
         threaded=with_threads,
         ssl_context=cert,

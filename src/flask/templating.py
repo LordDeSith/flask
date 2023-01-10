@@ -66,7 +66,7 @@ class DispatchingJinjaLoader(BaseLoader):
             t.Tuple[str, t.Optional[str], t.Optional[t.Callable[[], bool]]]
         ] = None
 
-        for srcobj, loader in self._iter_loaders(template):
+        for srcobj, loader in self._iter_loaders():
             try:
                 rv = loader.get_source(environment, template)
                 if trv is None:
@@ -86,7 +86,7 @@ class DispatchingJinjaLoader(BaseLoader):
     def _get_source_fast(
         self, environment: Environment, template: str
     ) -> t.Tuple[str, t.Optional[str], t.Optional[t.Callable]]:
-        for _srcobj, loader in self._iter_loaders(template):
+        for _srcobj, loader in self._iter_loaders():
             try:
                 return loader.get_source(environment, template)
             except TemplateNotFound:
@@ -94,7 +94,7 @@ class DispatchingJinjaLoader(BaseLoader):
         raise TemplateNotFound(template)
 
     def _iter_loaders(
-        self, template: str
+        self,
     ) -> t.Generator[t.Tuple["Scaffold", BaseLoader], None, None]:
         loader = self.app.jinja_loader
         if loader is not None:

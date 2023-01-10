@@ -26,6 +26,27 @@ def explain_template_loading_attempts(app: "Flask", template, attempts) -> None:
     if request_ctx and request_ctx.request.blueprint is not None:
         blueprint = request_ctx.request.blueprint
 
+    total_found = enumerate_attempts(attempts, info)
+
+    seems_fishy = False
+    if total_found == 0:
+        info.append("Error: the template could not be found.")
+        seems_fishy = True
+    elif total_found > 1:
+        info.append("Warning: multiple loaders returned a match for the template.")
+        seems_fishy = True
+
+    if blueprint is not None and seems_fishy:
+        info.append(
+            "  The template was looked up from an endpoint that belongs"
+            f" to the blueprint {blueprint!r}."
+        )
+        info.append("  Maybe you did not place a template in the right folder?")
+        info.append("  See https://flask.palletsprojects.com/blueprints/#templates")
+
+    app.logger.info("\n".join(info))
+
+def enumerate_attempts(attempts, info):
     for idx, (loader, srcobj, triple) in enumerate(attempts):
         if type(srcobj).__name__ == "Flask":
             src_info = f"application {srcobj.import_name!r}"
@@ -45,21 +66,5 @@ def explain_template_loading_attempts(app: "Flask", template, attempts) -> None:
             detail = f"found ({triple[1] or '<string>'!r})"
             total_found += 1
         info.append(f"       -> {detail}")
-
-    seems_fishy = False
-    if total_found == 0:
-        info.append("Error: the template could not be found.")
-        seems_fishy = True
-    elif total_found > 1:
-        info.append("Warning: multiple loaders returned a match for the template.")
-        seems_fishy = True
-
-    if blueprint is not None and seems_fishy:
-        info.append(
-            "  The template was looked up from an endpoint that belongs"
-            f" to the blueprint {blueprint!r}."
-        )
-        info.append("  Maybe you did not place a template in the right folder?")
-        info.append("  See https://flask.palletsprojects.com/blueprints/#templates")
-
-    app.logger.info("\n".join(info))
+        
+    return total_found

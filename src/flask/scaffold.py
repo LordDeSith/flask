@@ -287,7 +287,7 @@ class Scaffold:
 
         self._static_url_path = value
 
-    def get_send_file_max_age(self, filename: t.Optional[str]) -> t.Optional[int]:
+    def get_send_file_max_age(self) -> t.Optional[int]:
         """Used by :func:`send_file` to determine the ``max_age`` cache
         value for a given file path if it wasn't passed.
 
@@ -324,7 +324,7 @@ class Scaffold:
 
         # send_file only knows to call get_send_file_max_age on the app,
         # call it here so it works for blueprints too.
-        max_age = self.get_send_file_max_age(filename)
+        max_age = self.get_send_file_max_age()
         return send_from_directory(
             t.cast(str, self.static_folder), filename, max_age=max_age
         )
@@ -805,20 +805,7 @@ def _find_package_path(import_name):
     else:
         # namespace package
         if root_spec.origin in {"namespace", None}:
-            package_spec = importlib.util.find_spec(import_name)
-            if package_spec is not None and package_spec.submodule_search_locations:
-                # Pick the path in the namespace that contains the submodule.
-                package_path = pathlib.Path(
-                    os.path.commonpath(package_spec.submodule_search_locations)
-                )
-                search_locations = (
-                    location
-                    for location in root_spec.submodule_search_locations
-                    if _path_is_relative_to(package_path, location)
-                )
-            else:
-                # Pick the first path.
-                search_locations = iter(root_spec.submodule_search_locations)
+            search_locations = create_search_locations(import_name, root_spec)
             return os.path.dirname(next(search_locations))
         # a package (with __init__.py)
         elif root_spec.submodule_search_locations:
@@ -852,6 +839,24 @@ def _find_package_path(import_name):
         package_path = os.path.dirname(package_path)
 
     return package_path
+    
+    
+def create_search_locations(import_name, root_spec):
+    package_spec = importlib.util.find_spec(import_name)
+    if package_spec is not None and package_spec.submodule_search_locations:
+        # Pick the path in the namespace that contains the submodule.
+        package_path = pathlib.Path(
+            os.path.commonpath(package_spec.submodule_search_locations)
+        )
+        search_locations = (
+            location
+            for location in root_spec.submodule_search_locations
+            if _path_is_relative_to(package_path, location)
+        )
+    else:
+        # Pick the first path.
+        search_locations = iter(root_spec.submodule_search_locations)
+    return search_locations
 
 
 def find_package(import_name: str):

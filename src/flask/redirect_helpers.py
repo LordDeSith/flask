@@ -109,7 +109,7 @@ def url_for(
 
 
 def redirect(
-    location: str, code: int = 302, Response: t.Optional[t.Type["BaseResponse"]] = None
+    location: str, code: int = 302, response: t.Optional[t.Type["BaseResponse"]] = None
 ) -> "BaseResponse":
     """Create a redirect response object.
 
@@ -129,7 +129,7 @@ def redirect(
     if current_app:
         return current_app.redirect(location, code=code)
 
-    return _wz_redirect(location, code=code, Response=Response)
+    return _wz_redirect(location, code=code, Response=response)
 
 
 def abort(

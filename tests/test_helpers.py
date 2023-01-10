@@ -73,7 +73,7 @@ class TestSendfile:
         rv.close()
 
         class StaticFileApp(flask.Flask):
-            def get_send_file_max_age(self, filename):
+            def get_send_file_max_age(self):
                 return 10
 
         app = StaticFileApp(__name__)

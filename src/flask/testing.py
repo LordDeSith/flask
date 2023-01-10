@@ -60,20 +60,8 @@ class EnvironBuilder(werkzeug.test.EnvironBuilder):
         ), 'Cannot pass "subdomain" or "url_scheme" with "base_url".'
 
         if base_url is None:
-            http_host = app.config.get("SERVER_NAME") or "localhost"
-            app_root = app.config["APPLICATION_ROOT"]
-
-            if subdomain:
-                http_host = f"{subdomain}.{http_host}"
-
-            if url_scheme is None:
-                url_scheme = app.config["PREFERRED_URL_SCHEME"]
-
+            base_url = create_base_url(app, subdomain, url_scheme)
             url = url_parse(path)
-            base_url = (
-                f"{url.scheme or url_scheme}://{url.netloc or http_host}"
-                f"/{app_root.lstrip('/')}"
-            )
             path = url.path
 
             if url.query:
@@ -90,6 +78,22 @@ class EnvironBuilder(werkzeug.test.EnvironBuilder):
         with this EnvironBuilder's ``app``.
         """
         return self.app.json.dumps(obj, **kwargs)
+        
+    def create_base_url(self, app, subdomain, url_scheme) -> str:
+        http_host = app.config.get("SERVER_NAME") or "localhost"
+        app_root = app.config["APPLICATION_ROOT"]
+
+        if subdomain:
+            http_host = f"{subdomain}.{http_host}"
+
+        if url_scheme is None:
+            url_scheme = app.config["PREFERRED_URL_SCHEME"]
+        
+        url = url_parse(path)
+        return (
+                f"{url.scheme or url_scheme}://{url.netloc or http_host}"
+                f"/{app_root.lstrip('/')}"
+            )
 
 
 class FlaskClient(Client):

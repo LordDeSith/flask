@@ -1772,7 +1772,7 @@ class Flask(Scaffold):
         rv.allow.update(methods)
         return rv
 
-    def should_ignore_error(self, error: t.Optional[BaseException]) -> bool:
+    def should_ignore_error(self) -> bool:
         """This is called to figure out if an error should be ignored
         or not as far as the teardown system is concerned.  If this
         function returns ``True`` then the teardown handlers will not be
@@ -2206,10 +2206,7 @@ class Flask(Scaffold):
         """
         names = (None, *reversed(request.blueprints))
 
-        for name in names:
-            if name in self.url_value_preprocessors:
-                for url_func in self.url_value_preprocessors[name]:
-                    url_func(request.endpoint, request.view_args)
+        url_func_loop(self, names)
 
         for name in names:
             if name in self.before_request_funcs:
@@ -2220,6 +2217,13 @@ class Flask(Scaffold):
                         return rv
 
         return None
+        
+    def url_func_loop(self, names):
+        for name in names:
+            if name in self.url_value_preprocessors:
+                for url_func in self.url_value_preprocessors[name]:
+                    url_func(request.endpoint, request.view_args)
+    
 
     def process_response(self, response: Response) -> Response:
         """Can be overridden in order to modify the response object
@@ -2383,11 +2387,12 @@ class Flask(Scaffold):
                 raise
             return response(environ, start_response)
         finally:
-            if "werkzeug.debug.preserve_context" in environ:
-                environ["werkzeug.debug.preserve_context"](_cv_app.get())
-                environ["werkzeug.debug.preserve_context"](_cv_request.get())
+            werkzeug_debug_preserve_context_str = "werkzeug.debug.preserve_context"
+            if werkzeug_debug_preserve_context_str in environ:
+                environ[werkzeug_debug_preserve_context_str](_cv_app.get())
+                environ[werkzeug_debug_preserve_context_str](_cv_request.get())
 
-            if error is not None and self.should_ignore_error(error):
+            if error is not None and self.should_ignore_error():
                 error = None
 
             ctx.pop(error)

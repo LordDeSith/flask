@@ -223,7 +223,7 @@ def test_templates_and_static(test_apps):
 
 def test_default_static_max_age(app):
     class MyBlueprint(flask.Blueprint):
-        def get_send_file_max_age(self, filename):
+        def get_send_file_max_age(self):
             return 100
 
     blueprint = MyBlueprint("blueprint", __name__, static_folder="static")
