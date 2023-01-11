@@ -1286,22 +1286,10 @@ class Flask(Scaffold):
         """
 
         def decorator(f: T_template_filter) -> T_template_filter:
-            self.add_template_filter(f, name=name)
+            self.jinja_env.filters[name or f.__name__] = f
             return f
 
         return decorator
-
-    @setupmethod
-    def add_template_filter(
-        self, f: ft.TemplateFilterCallable, name: t.Optional[str] = None
-    ) -> None:
-        """Register a custom template filter.  Works exactly like the
-        :meth:`template_filter` decorator.
-
-        :param name: the optional name of the filter, otherwise the
-                     function name will be used.
-        """
-        self.jinja_env.filters[name or f.__name__] = f
 
     @setupmethod
     def template_test(
@@ -1327,24 +1315,10 @@ class Flask(Scaffold):
         """
 
         def decorator(f: T_template_test) -> T_template_test:
-            self.add_template_test(f, name=name)
+            self.jinja_env.tests[name or f.__name__] = f
             return f
 
         return decorator
-
-    @setupmethod
-    def add_template_test(
-        self, f: ft.TemplateTestCallable, name: t.Optional[str] = None
-    ) -> None:
-        """Register a custom template test.  Works exactly like the
-        :meth:`template_test` decorator.
-
-        .. versionadded:: 0.10
-
-        :param name: the optional name of the test, otherwise the
-                     function name will be used.
-        """
-        self.jinja_env.tests[name or f.__name__] = f
 
     @setupmethod
     def template_global(
@@ -1365,24 +1339,10 @@ class Flask(Scaffold):
         """
 
         def decorator(f: T_template_global) -> T_template_global:
-            self.add_template_global(f, name=name)
+            self.jinja_env.globals[name or f.__name__] = f
             return f
 
         return decorator
-
-    @setupmethod
-    def add_template_global(
-        self, f: ft.TemplateGlobalCallable, name: t.Optional[str] = None
-    ) -> None:
-        """Register a custom template global function. Works exactly like the
-        :meth:`template_global` decorator.
-
-        .. versionadded:: 0.10
-
-        :param name: the optional name of the global function, otherwise the
-                     function name will be used.
-        """
-        self.jinja_env.globals[name or f.__name__] = f
 
     @setupmethod
     def before_first_request(self, f: T_before_first_request) -> T_before_first_request:

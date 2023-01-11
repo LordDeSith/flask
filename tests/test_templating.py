@@ -130,16 +130,6 @@ def test_template_filter(app):
     assert app.jinja_env.filters["my_reverse"]("abcd") == "dcba"
 
 
-def test_add_template_filter(app):
-    def my_reverse(s):
-        return s[::-1]
-
-    app.add_template_filter(my_reverse)
-    assert "my_reverse" in app.jinja_env.filters.keys()
-    assert app.jinja_env.filters["my_reverse"] == my_reverse
-    assert app.jinja_env.filters["my_reverse"]("abcd") == "dcba"
-
-
 def test_template_filter_with_name(app):
     @app.template_filter("strrev")
     def my_reverse(s):
@@ -150,34 +140,10 @@ def test_template_filter_with_name(app):
     assert app.jinja_env.filters["strrev"]("abcd") == "dcba"
 
 
-def test_add_template_filter_with_name(app):
-    def my_reverse(s):
-        return s[::-1]
-
-    app.add_template_filter(my_reverse, "strrev")
-    assert "strrev" in app.jinja_env.filters.keys()
-    assert app.jinja_env.filters["strrev"] == my_reverse
-    assert app.jinja_env.filters["strrev"]("abcd") == "dcba"
-
-
 def test_template_filter_with_template(app, client):
     @app.template_filter()
     def super_reverse(s):
         return s[::-1]
-
-    @app.route("/")
-    def index():
-        return flask.render_template("template_filter.html", value="abcd")
-
-    rv = client.get("/")
-    assert rv.data == b"dcba"
-
-
-def test_add_template_filter_with_template(app, client):
-    def super_reverse(s):
-        return s[::-1]
-
-    app.add_template_filter(super_reverse)
 
     @app.route("/")
     def index():
@@ -200,20 +166,6 @@ def test_template_filter_with_name_and_template(app, client):
     assert rv.data == b"dcba"
 
 
-def test_add_template_filter_with_name_and_template(app, client):
-    def my_reverse(s):
-        return s[::-1]
-
-    app.add_template_filter(my_reverse, "super_reverse")
-
-    @app.route("/")
-    def index():
-        return flask.render_template("template_filter.html", value="abcd")
-
-    rv = client.get("/")
-    assert rv.data == b"dcba"
-
-
 def test_template_test(app):
     @app.template_test()
     def boolean(value):
@@ -224,31 +176,11 @@ def test_template_test(app):
     assert app.jinja_env.tests["boolean"](False)
 
 
-def test_add_template_test(app):
-    def boolean(value):
-        return isinstance(value, bool)
-
-    app.add_template_test(boolean)
-    assert "boolean" in app.jinja_env.tests.keys()
-    assert app.jinja_env.tests["boolean"] == boolean
-    assert app.jinja_env.tests["boolean"](False)
-
-
 def test_template_test_with_name(app):
     @app.template_test("boolean")
     def is_boolean(value):
         return isinstance(value, bool)
 
-    assert "boolean" in app.jinja_env.tests.keys()
-    assert app.jinja_env.tests["boolean"] == is_boolean
-    assert app.jinja_env.tests["boolean"](False)
-
-
-def test_add_template_test_with_name(app):
-    def is_boolean(value):
-        return isinstance(value, bool)
-
-    app.add_template_test(is_boolean, "boolean")
     assert "boolean" in app.jinja_env.tests.keys()
     assert app.jinja_env.tests["boolean"] == is_boolean
     assert app.jinja_env.tests["boolean"](False)
@@ -267,38 +199,10 @@ def test_template_test_with_template(app, client):
     assert b"Success!" in rv.data
 
 
-def test_add_template_test_with_template(app, client):
-    def boolean(value):
-        return isinstance(value, bool)
-
-    app.add_template_test(boolean)
-
-    @app.route("/")
-    def index():
-        return flask.render_template("template_test.html", value=False)
-
-    rv = client.get("/")
-    assert b"Success!" in rv.data
-
-
 def test_template_test_with_name_and_template(app, client):
     @app.template_test("boolean")
     def is_boolean(value):
         return isinstance(value, bool)
-
-    @app.route("/")
-    def index():
-        return flask.render_template("template_test.html", value=False)
-
-    rv = client.get("/")
-    assert b"Success!" in rv.data
-
-
-def test_add_template_test_with_name_and_template(app, client):
-    def is_boolean(value):
-        return isinstance(value, bool)
-
-    app.add_template_test(is_boolean, "boolean")
 
     @app.route("/")
     def index():
